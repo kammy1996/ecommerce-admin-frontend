@@ -3,15 +3,21 @@ import Router from "vue-router";
 Vue.use(Router);
 
 //New Modules
-import HelloWorld from "../components/HelloWorld";
+import Dashboard from "../pages/dashboard";
+import Product from "../pages/product/product";
 
 export default new Router({
   mode: "history",
   routes: [
     {
       path: "/",
-      name: "HelloWorld",
-      component: HelloWorld,
+      name: "Product",
+      component: Product
     },
-  ],
+    {
+      path: "/dashboard",
+      name: "Dashboard",
+      component: Dashboard
+    }
+  ]
 });
