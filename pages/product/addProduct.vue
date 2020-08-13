@@ -2,7 +2,7 @@
   <sidebar>
     <h3 slot="title">Add New Product</h3>
     <v-main slot="page">
-      <v-form>
+      <v-form method="post">
         <v-row>
           <v-col cols="5">
             <v-carousel cycle show-arrows-on-hover>
@@ -25,7 +25,9 @@
             <div class="summary-background">
               <v-card-text> Title: </v-card-text>
               <v-card-text> Short Description: </v-card-text>
-              <v-card-text> Specification: </v-card-text>
+              <v-card-text>
+                Specification:
+              </v-card-text>
               <v-card-text>Category:</v-card-text>
 
               <v-card-title>Inventory</v-card-title>
@@ -60,18 +62,22 @@
               <v-card-title>Final Amount: </v-card-title>
             </div>
           </v-col>
+
           <v-col cols="7">
             <v-card class="pa-5">
               <v-card-title>Product Details</v-card-title>
               <v-text-field
-                name="productName"
+                name="name"
                 label="Product Name"
+                v-model="name"
                 required
               ></v-text-field>
               <v-textarea
                 name="shortDescription"
                 label="Short Description"
+                v-model="shortDescription"
                 rows="3"
+                required
               ></v-textarea>
               <vue-editor placeholder="Product Specification" />
               <v-spacer class="ma-5"></v-spacer>
@@ -96,18 +102,10 @@
               <v-card-title>Inventory Management</v-card-title>
               <v-row>
                 <v-col cols="4">
-                  <v-text-field
-                    name="color"
-                    label="Color"
-                    required
-                  ></v-text-field>
+                  <v-text-field name="color" label="Color"></v-text-field>
                 </v-col>
                 <v-col cols="2">
-                  <v-text-field
-                    name="quantity"
-                    label="Quantity"
-                    required
-                  ></v-text-field>
+                  <v-text-field name="quantity" label="Quantity"></v-text-field>
                 </v-col>
                 <v-col cols="3">
                   <v-btn color="primary" small class="ml-5"
@@ -127,22 +125,29 @@
               <v-row>
                 <v-col cols="4">
                   <v-text-field
-                    name="color"
+                    name="price"
                     label="₹ Base Price (Incl.Taxes)"
+                    v-model="price"
                     required
                   ></v-text-field>
                 </v-col>
                 <v-col cols="4">
                   <v-text-field
-                    name="color"
+                    name="discount"
                     label="₹ Discount Price"
+                    v-model="discount"
+                    required
                   ></v-text-field>
                 </v-col>
               </v-row>
-              <v-card-title>Total Amount Payable : 500</v-card-title>
+              <v-card-title>Total Amount Payable : </v-card-title>
             </v-card>
             <v-spacer class="ma-10"></v-spacer>
-            <v-btn color="success" large
+            <v-btn
+              @click.prevent="submitData"
+              type="submit"
+              color="success"
+              large
               ><v-icon>mdi-check</v-icon>&nbsp; SAVE</v-btn
             >
           </v-col>
@@ -155,11 +160,40 @@
 <script>
 import Sidebar from "../../components/Sidebar";
 import { VueEditor } from "vue2-editor";
+import axios from "axios";
 
 export default {
   components: {
     VueEditor,
     Sidebar,
+  },
+  data() {
+    return {
+      name: "",
+      shortDescription: "",
+      price: "",
+      discount: "",
+    };
+  },
+  methods: {
+    submitData() {
+      let formData = {
+        name: this.name,
+        shortDescription: this.shortDescription,
+        price: this.price,
+        discount: this.discount,
+      };
+      console.log(formData);
+      axios
+        .post("http://localhost:3000/product/add", formData)
+        .then((res) => console.log(res))
+        .catch((error) => console.log(error));
+
+      // axios
+      //   .get("/product/get")
+      //   .then((res) => console.log(res))
+      //   .catch((error) => console.log(error));
+    },
   },
 };
 </script>
