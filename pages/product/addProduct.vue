@@ -23,11 +23,15 @@
             <v-spacer class="ma-10"></v-spacer>
             <v-card-title>Product Summary</v-card-title>
             <div class="summary-background">
-              <v-card-text> Title: </v-card-text>
-              <v-card-text> Short Description: </v-card-text>
               <v-card-text>
-                Specification:
+                Title:
+                {{ name }}
               </v-card-text>
+              <v-card-text>
+                Short Description:
+                {{ shortDescription }}</v-card-text
+              >
+              <v-card-text> Specification: {{ specification }} </v-card-text>
               <v-card-text>Category:</v-card-text>
 
               <v-card-title>Inventory</v-card-title>
@@ -35,6 +39,7 @@
                 <thead>
                   <tr>
                     <th class="text-left">Sr.no</th>
+
                     <th class="text-left">Color</th>
                     <th class="text-left">Quantity</th>
                     <th class="text-left">No.images</th>
@@ -57,9 +62,9 @@
               </v-simple-table>
               <v-spacer class="pt-5"></v-spacer>
               <v-card-title>Pricing</v-card-title>
-              <v-card-text>Base Price (Incl.Taxes): </v-card-text>
-              <v-card-text>Discount: </v-card-text>
-              <v-card-title>Final Amount: </v-card-title>
+              <v-card-text>Base Price (Incl.Taxes): {{ price }}</v-card-text>
+              <v-card-text>Discount: {{ discount }}</v-card-text>
+              <v-card-title>Final Amount: {{ finalPrice }}</v-card-title>
             </div>
           </v-col>
 
@@ -79,7 +84,10 @@
                 rows="3"
                 required
               ></v-textarea>
-              <vue-editor placeholder="Product Specification" />
+              <vue-editor
+                v-model="specification"
+                placeholder="Product Specification"
+              />
               <v-spacer class="ma-5"></v-spacer>
               <v-row>
                 <v-col cols="6">
@@ -136,11 +144,14 @@
                     name="discount"
                     label="₹ Discount Price"
                     v-model="discount"
+                    @keyup="calcFinalPrice"
                     required
                   ></v-text-field>
                 </v-col>
               </v-row>
-              <v-card-title>Total Amount Payable : </v-card-title>
+              <v-card-title
+                >Total Amount Payable : {{ finalPrice }}
+              </v-card-title>
             </v-card>
             <v-spacer class="ma-10"></v-spacer>
             <v-btn
@@ -171,28 +182,31 @@ export default {
     return {
       name: "",
       shortDescription: "",
-      price: "",
-      discount: "",
+      specification: "",
+      price: null,
+      discount: null,
+      finalPrice: null,
     };
   },
   methods: {
     submitData() {
-      let formData = {
+      let submissionData = {
         name: this.name,
         shortDescription: this.shortDescription,
-        price: this.price,
-        discount: this.discount,
+        specification: this.specification,
+        price: parseInt(this.price),
+        discount: parseInt(this.discount),
+        finalPrice: parseInt(this.finalPrice),
       };
-      console.log(formData);
+      console.log(submissionData);
       axios
-        .post("http://localhost:3000/product/add", formData)
+        .post("api/product/add", submissionData)
         .then((res) => console.log(res))
         .catch((error) => console.log(error));
+    },
 
-      // axios
-      //   .get("/product/get")
-      //   .then((res) => console.log(res))
-      //   .catch((error) => console.log(error));
+    calcFinalPrice() {
+      this.finalPrice = this.price - this.discount;
     },
   },
 };
