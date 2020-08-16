@@ -63,7 +63,7 @@ export default {
   },
   mounted() {
     axios
-      .get("/api/product/show")
+      .get("api/product/show")
       .then((res) => (this.products = res.data))
       .catch((error) => console.log(error));
   },

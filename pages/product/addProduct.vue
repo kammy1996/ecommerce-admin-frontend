@@ -2,7 +2,7 @@
   <sidebar>
     <h3 slot="title">Add New Product</h3>
     <v-main slot="page">
-      <v-form method="post">
+      <v-form method="post" enctype="multipart/form-data">
         <v-row>
           <v-col cols="5">
             <v-carousel cycle show-arrows-on-hover>
@@ -91,12 +91,53 @@
               <v-spacer class="ma-5"></v-spacer>
               <v-row>
                 <v-col cols="6">
-                  <v-select label="Product Category" multiple></v-select>
+                  <v-select
+                    :items="categories"
+                    label="Product Category"
+                    multiple
+                  ></v-select>
                 </v-col>
                 <v-col cols="2">
-                  <v-btn color="primary" small
-                    ><v-icon>mdi-plus</v-icon> Category</v-btn
-                  >
+                  <v-dialog v-model="dialog" persistent max-width="600px">
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-btn
+                        color="primary"
+                        small
+                        dark
+                        v-bind="attrs"
+                        v-on="on"
+                      >
+                        <v-icon> mdi-plus </v-icon> Category
+                      </v-btn>
+                    </template>
+                    <v-card>
+                      <v-card-title>
+                        <span class="headline">Add New Category</span>
+                      </v-card-title>
+                      <v-card-text>
+                        <v-container>
+                          <v-text-field
+                            label="New Category Name *"
+                            required
+                            prepend-icon="mdi-order-bool-descending"
+                            v-model="categoryName"
+                          ></v-text-field>
+                        </v-container>
+                      </v-card-text>
+                      <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn
+                          color="blue darken-1"
+                          text
+                          @click="dialog = false"
+                          >Close</v-btn
+                        >
+                        <v-btn color="blue darken-1" text @click="addCategory"
+                          >Save</v-btn
+                        >
+                      </v-card-actions>
+                    </v-card>
+                  </v-dialog>
                 </v-col>
                 <v-col cols="3">
                   <v-btn color="primary" small class="ml-5"
@@ -110,21 +151,23 @@
               <v-card-title>Inventory Management</v-card-title>
               <v-row>
                 <v-col cols="4">
-                  <v-text-field name="color" label="Color"></v-text-field>
+                  <v-text-field
+                    name="color"
+                    v-model="color"
+                    label="Color"
+                  ></v-text-field>
                 </v-col>
                 <v-col cols="2">
-                  <v-text-field name="quantity" label="Quantity"></v-text-field>
+                  <v-text-field
+                    name="quantity"
+                    v-model="quantity"
+                    label="Quantity"
+                  ></v-text-field>
                 </v-col>
-                <v-col cols="3">
-                  <v-btn color="primary" small class="ml-5"
-                    ><v-icon>mdi-plus</v-icon>Images</v-btn
-                  >
-                </v-col>
-                <v-col cols="3">
-                  <v-btn color="primary" small class="ml-5"
-                    ><v-icon>mdi-plus</v-icon>Color</v-btn
-                  >
-                </v-col>
+                <v-col cols="6"> </v-col>
+                <v-btn color="primary" class="ml-5" @click="addStock"
+                  ><v-icon>mdi-check</v-icon>Save Color</v-btn
+                >
               </v-row>
             </v-card>
             <v-spacer class="ma-10"></v-spacer>
@@ -149,6 +192,7 @@
                   ></v-text-field>
                 </v-col>
               </v-row>
+
               <v-card-title
                 >Total Amount Payable : {{ finalPrice }}
               </v-card-title>
@@ -186,8 +230,14 @@ export default {
       price: null,
       discount: null,
       finalPrice: null,
+      dialog: false,
+      categoryName: "",
+      categories: [],
+      color: "",
+      quantity: null,
     };
   },
+
   methods: {
     submitData() {
       let submissionData = {
@@ -198,16 +248,47 @@ export default {
         discount: parseInt(this.discount),
         finalPrice: parseInt(this.finalPrice),
       };
-      console.log(submissionData);
       axios
         .post("api/product/add", submissionData)
-        .then((res) => console.log(res))
+        .then((res) => (this.message = res.data.message))
         .catch((error) => console.log(error));
+      console.log(this.message);
     },
 
     calcFinalPrice() {
       this.finalPrice = this.price - this.discount;
     },
+    addCategory() {
+      let categoryData = {
+        catName: this.categoryName,
+      };
+      //adding the category
+      axios
+        .post("api/product/category/add", categoryData)
+        .then((res) => console.log(res))
+        .catch((err) => console.log(err));
+      //showing the cateogyr
+    },
+    addStock() {
+      let stockData = {
+        color: this.color,
+        quantity: parseInt(this.quantity),
+      };
+      axios
+        .post("/api/product/stock/add", stockData)
+        .then((res) => console.log(res))
+        .catch((err) => console.log(err));
+    },
+  },
+  mounted() {
+    axios
+      .get("api/product/category/show")
+      .then((res) => {
+        for (var i = 0; i < res.data.length; i++) {
+          this.categories.push(res.data[i].name);
+        }
+      })
+      .catch((error) => console.log(error));
   },
 };
 </script>

@@ -6,6 +6,7 @@ Vue.use(Router);
 import Dashboard from "../pages/dashboard";
 import Product from "../pages/product/product";
 import addProduct from "../pages/product/addProduct";
+import ImageUpload from "../helpers/FileUpload";
 
 export default new Router({
   mode: "history",
@@ -24,6 +25,11 @@ export default new Router({
       path: "/addProduct",
       name: "addProduct",
       component: addProduct,
+    },
+    {
+      path: "/imageupload",
+      name: "ImageUpload",
+      component: ImageUpload,
     },
   ],
 });
