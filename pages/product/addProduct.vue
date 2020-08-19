@@ -93,6 +93,9 @@
                 <v-col cols="6">
                   <v-select
                     :items="categories"
+                    item-text="name"
+                    item-value="id"
+                    v-model="catIndex"
                     label="Product Category"
                     multiple
                   ></v-select>
@@ -149,26 +152,40 @@
             <v-spacer class="ma-10"></v-spacer>
             <v-card class="pa-10">
               <v-card-title>Inventory Management</v-card-title>
-              <v-row>
-                <v-col cols="4">
-                  <v-text-field
-                    name="color"
-                    v-model="color"
-                    label="Color"
-                  ></v-text-field>
-                </v-col>
-                <v-col cols="2">
-                  <v-text-field
-                    name="quantity"
-                    v-model="quantity"
-                    label="Quantity"
-                  ></v-text-field>
-                </v-col>
-                <v-col cols="6"> </v-col>
-                <v-btn color="primary" class="ml-5" @click="addStock"
-                  ><v-icon>mdi-check</v-icon>Save Color</v-btn
-                >
-              </v-row>
+              <v-form
+                method="post"
+                @submit.prevent="addStock"
+                enctype="multipart/form-data"
+              >
+                <v-row>
+                  <v-col cols="4">
+                    <v-text-field
+                      name="color"
+                      v-model="color"
+                      label="Color"
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="2">
+                    <v-text-field
+                      name="quantity"
+                      v-model="quantity"
+                      label="Quantity"
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="6">
+                    <input
+                      type="file"
+                      ref="files"
+                      @change="selectedFile"
+                      multiple
+                    />
+                    <v-divider class="mt-5"></v-divider>
+                  </v-col>
+                  <v-btn color="primary" class="ml-5" type="submit"
+                    ><v-icon>mdi-check</v-icon>Save Color</v-btn
+                  >
+                </v-row>
+              </v-form>
             </v-card>
             <v-spacer class="ma-10"></v-spacer>
             <v-card class="pa-10">
@@ -232,9 +249,13 @@ export default {
       finalPrice: null,
       dialog: false,
       categoryName: "",
-      categories: [],
+      categories: null,
       color: "",
       quantity: null,
+      catIndex: "",
+      stock: [],
+      files: [],
+      uploadFiles: [],
     };
   },
 
@@ -247,12 +268,13 @@ export default {
         price: parseInt(this.price),
         discount: parseInt(this.discount),
         finalPrice: parseInt(this.finalPrice),
+        selectedCat: parseInt(this.catIndex),
+        stock: this.stock,
       };
       axios
         .post("api/product/add", submissionData)
         .then((res) => (this.message = res.data.message))
         .catch((error) => console.log(error));
-      console.log(this.message);
     },
 
     calcFinalPrice() {
@@ -269,24 +291,35 @@ export default {
         .catch((err) => console.log(err));
       //showing the cateogyr
     },
+    selectedFile() {
+      const files = this.$refs.files.files;
+      this.uploadFiles = [...this.uploadFiles, ...files];
+    },
     addStock() {
-      let stockData = {
-        color: this.color,
-        quantity: parseInt(this.quantity),
-      };
+      let stockData = [this.color, this.quantity];
+      this.stock.push(stockData);
+      console.log(this.stock);
+
+      const formData = new FormData();
+      this.uploadFiles.forEach((file) => {
+        formData.append("files", file);
+      });
+
       axios
-        .post("/api/product/stock/add", stockData)
+        .post("api/image/add", formData)
         .then((res) => console.log(res))
         .catch((err) => console.log(err));
+
+      this.uploadFiles = []; //erasing the input file of files
+      this.files = [];
     },
   },
   mounted() {
     axios
       .get("api/product/category/show")
       .then((res) => {
-        for (var i = 0; i < res.data.length; i++) {
-          this.categories.push(res.data[i].name);
-        }
+        this.categories = res.data;
+        // console.log(res.data);
       })
       .catch((error) => console.log(error));
   },
