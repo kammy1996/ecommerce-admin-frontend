@@ -269,10 +269,9 @@ export default {
         discount: parseInt(this.discount),
         finalPrice: parseInt(this.finalPrice),
         selectedCat: parseInt(this.catIndex),
-        stock: this.stock,
       };
       axios
-        .post("api/product/add", submissionData)
+        .post("product/add", submissionData)
         .then((res) => (this.message = res.data.message))
         .catch((error) => console.log(error));
     },
@@ -286,7 +285,7 @@ export default {
       };
       //adding the category
       axios
-        .post("api/product/category/add", categoryData)
+        .post("product/category/add", categoryData)
         .then((res) => console.log(res))
         .catch((err) => console.log(err));
       //showing the cateogyr
@@ -296,9 +295,17 @@ export default {
       this.uploadFiles = [...this.uploadFiles, ...files];
     },
     addStock() {
-      let stockData = [this.color, this.quantity];
-      this.stock.push(stockData);
-      console.log(this.stock);
+      let tempStock = [this.color, this.quantity];
+      this.stock.push(tempStock);
+
+      let stockData = {
+        stock: this.stock,
+      };
+
+      axios
+        .post("product/stock/add", stockData)
+        .then((res) => console.log(res))
+        .catch((err) => console.log(err));
 
       const formData = new FormData();
       this.uploadFiles.forEach((file) => {
@@ -306,17 +313,20 @@ export default {
       });
 
       axios
-        .post("api/image/add", formData)
+        .post("product/image/add", formData)
         .then((res) => console.log(res))
         .catch((err) => console.log(err));
 
-      this.uploadFiles = []; //erasing the input file of files
-      this.files = [];
+      this.files = []; // clearing the Image input form
+      this.uploadFiles = []; // clearing the Image input form
+      this.stock = []; // clearing the stock after saving color
+      this.color = ""; //
+      this.quantity = "";
     },
   },
   mounted() {
     axios
-      .get("api/product/category/show")
+      .get("product/category/show")
       .then((res) => {
         this.categories = res.data;
         // console.log(res.data);

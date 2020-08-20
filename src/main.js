@@ -5,7 +5,7 @@ import vuetify from "./plugins/vuetify";
 import axios from "axios";
 
 // ---Base URL for all the Request ---
-axios.defaults.baseURL = "http://localhost:3000";
+axios.defaults.baseURL = "http://localhost:3000/api";
 
 // ------------------------ Default Setup ----------
 new Vue({
