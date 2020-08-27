@@ -6,18 +6,8 @@
         <v-row>
           <v-col cols="5">
             <v-carousel cycle show-arrows-on-hover>
-              <v-carousel-item>
-                <v-img
-                  src="../../assets/images/product/bike-product.png"
-                ></v-img>
-              </v-carousel-item>
-              <v-carousel-item>
-                <v-img src="../../assets/images/product/bike-2.jpg"></v-img>
-              </v-carousel-item>
-              <v-carousel-item>
-                <v-img
-                  src="../../assets/images/product/product-default.jpg"
-                ></v-img>
+              <v-carousel-item v-for="(item, index) in url" :key="index">
+                <v-img :src="item"></v-img>
               </v-carousel-item>
             </v-carousel>
             <v-spacer class="ma-10"></v-spacer>
@@ -32,31 +22,21 @@
                 {{ shortDescription }}</v-card-text
               >
               <v-card-text> Specification: {{ specification }} </v-card-text>
-              <v-card-text>Category:</v-card-text>
 
               <v-card-title>Inventory</v-card-title>
               <v-simple-table>
                 <thead>
                   <tr>
-                    <th class="text-left">Sr.no</th>
-
                     <th class="text-left">Color</th>
                     <th class="text-left">Quantity</th>
                     <th class="text-left">No.images</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td>1</td>
-                    <td>Red</td>
-                    <td>10</td>
-                    <td>3</td>
-                  </tr>
-                  <tr>
-                    <td>1</td>
-                    <td>Red</td>
-                    <td>10</td>
-                    <td>3</td>
+                  <tr v-for="(stock, index) in addedStocks" :key="index">
+                    <td>{{ stock.color }}</td>
+                    <td>{{ stock.quantity }}</td>
+                    <td>{{ stock.noOfImages }}</td>
                   </tr>
                 </tbody>
               </v-simple-table>
@@ -152,6 +132,13 @@
             <v-spacer class="ma-10"></v-spacer>
             <v-card class="pa-10">
               <v-card-title>Inventory Management</v-card-title>
+              <v-select
+                v-if="showStocks.length > 0"
+                :items="showStocks"
+                item-text="name"
+                item-value="id"
+                label="Current Stock"
+              ></v-select>
               <v-form
                 method="post"
                 @submit.prevent="addStock"
@@ -241,21 +228,29 @@ export default {
   },
   data() {
     return {
+      //Submission variables
       name: "",
       shortDescription: "",
       specification: "",
       price: null,
       discount: null,
       finalPrice: null,
-      dialog: false,
-      categoryName: "",
-      categories: null,
-      color: "",
-      quantity: null,
       catIndex: "",
       stock: [],
-      files: [],
       uploadFiles: [],
+      //Variables to show in frontend
+      addedStocks: [],
+      addedImages: [],
+      categories: null,
+      showStocks: [],
+      url: [],
+      //Other variables
+      dialog: false,
+      files: [],
+      categoryName: "",
+      color: "",
+      quantity: null,
+      message: "hello",
     };
   },
 
@@ -290,13 +285,44 @@ export default {
         .catch((err) => console.log(err));
       //showing the cateogyr
     },
-    selectedFile() {
+    selectedFile(e) {
       const files = this.$refs.files.files;
       this.uploadFiles = [...this.uploadFiles, ...files];
+
+      //Preview Images in the form
+      this.url = [];
+      let fileList = Array.prototype.slice.call(e.target.files);
+      fileList.forEach((f) => {
+        if (!f.type.match("image.*")) {
+          return;
+        }
+        let reader = new FileReader();
+        let that = this;
+
+        reader.onload = function(e) {
+          that.url.push(e.target.result);
+        };
+        reader.readAsDataURL(f);
+      });
+
+      console.log(this.url);
     },
+
     addStock() {
-      let tempStock = [this.color, this.quantity];
-      this.stock.push(tempStock);
+      //Showing the data in the inventory management for later edits
+      if (this.color != "") {
+        this.showStocks.push(this.color);
+      }
+
+      // Showing it in Summary
+      this.addedStocks.push({
+        color: this.color,
+        quantity: this.quantity,
+        noOfImages: this.url.length,
+      });
+
+      //Sending the data
+      this.stock.push([this.color, this.quantity]);
 
       let stockData = {
         stock: this.stock,
@@ -312,16 +338,26 @@ export default {
         formData.append("files", file);
       });
 
+      formData.append(`nameForImage`, this.name);
+
       axios
         .post("product/image/add", formData)
         .then((res) => console.log(res))
         .catch((err) => console.log(err));
 
       this.files = []; // clearing the Image input form
-      this.uploadFiles = []; // clearing the Image input form
       this.stock = []; // clearing the stock after saving color
       this.color = ""; //
       this.quantity = "";
+      this.uploadFiles = [];
+    },
+  },
+  computed: {
+    reversedMessage: function() {
+      return this.message
+        .split("")
+        .reverse()
+        .join("");
     },
   },
   mounted() {
