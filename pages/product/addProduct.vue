@@ -240,7 +240,7 @@ export default {
       uploadFiles: [],
       //Variables to show in frontend
       addedStocks: [],
-      addedImages: [],
+
       categories: null,
       showStocks: [],
       url: [],
@@ -250,7 +250,6 @@ export default {
       categoryName: "",
       color: "",
       quantity: null,
-      message: "hello",
     };
   },
 
@@ -352,14 +351,7 @@ export default {
       this.uploadFiles = [];
     },
   },
-  computed: {
-    reversedMessage: function() {
-      return this.message
-        .split("")
-        .reverse()
-        .join("");
-    },
-  },
+
   mounted() {
     axios
       .get("product/category/show")

@@ -25,17 +25,18 @@
 
         <v-row>
           <v-col cols="3" v-for="(product, index) in products" :key="index">
-            <v-card class="mx-auto" max-width="400">
+            <v-card class="mx-auto per-product" max-width="400">
               <v-img
-                class="white--text align-end"
-                src="../../assets/images/product/bike-product.png"
-              ></v-img>
+                class="white--text align-end product-image"
+                :src="getImagePath(product)"
+              >
+              </v-img>
               <v-divider></v-divider>
               <v-card-title>{{ product.name }}</v-card-title>
               <v-card-subtitle class="pb-1">Bikes</v-card-subtitle>
 
               <v-card-title>
-                &#8377; {{ product.price }}
+                &#8377; {{ product.final_price }}
                 <v-chip class="ma-2" color="red" text-color="white"
                   >{{ product.discount }} Off</v-chip
                 >
@@ -59,13 +60,24 @@ export default {
   data() {
     return {
       products: null,
+      images: null,
     };
+  },
+  methods: {
+    getImagePath: function(product) {
+      return "http://localhost:3000/" + product.name + "/" + product.file_name;
+    },
   },
   mounted() {
     axios
       .get("product/show")
       .then((res) => (this.products = res.data))
       .catch((error) => console.log(error));
+
+    //   axios
+    //     .get("product/image/show")
+    //     .then((res) => (this.images = res.data))
+    //     .catch((err) => console.log(err));
   },
 };
 </script>
