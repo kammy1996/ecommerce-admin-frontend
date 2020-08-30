@@ -4,8 +4,8 @@ Vue.use(Router);
 
 //New Modules
 import Dashboard from "../pages/dashboard";
-import Product from "../pages/product/product";
-import addProduct from "../pages/product/addProduct";
+import All from "../pages/product/all";
+import Details from "../pages/product/details";
 import ImageUpload from "../helpers/FileUpload";
 
 export default new Router({
@@ -13,8 +13,8 @@ export default new Router({
   routes: [
     {
       path: "/",
-      name: "Product",
-      component: Product,
+      name: "All",
+      component: All,
     },
     {
       path: "/dashboard",
@@ -22,9 +22,9 @@ export default new Router({
       component: Dashboard,
     },
     {
-      path: "/addProduct",
-      name: "addProduct",
-      component: addProduct,
+      path: "/details",
+      name: "Details",
+      component: Details,
     },
     {
       path: "/imageupload",

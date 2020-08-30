@@ -14,7 +14,7 @@
           </v-col>
           <v-col cols="2">
             <div class="my-2">
-              <a href="addProduct">
+              <a href="details">
                 <v-btn color="primary"
                   ><v-icon>mdi-plus</v-icon> New Product
                 </v-btn></a
@@ -44,42 +44,19 @@
             </v-card>
           </v-col>
         </v-row>
+        <v-btn color="blue" type="button" @click="incrementCounter"
+          >increment</v-btn
+        >
+        <p>counter is : {{ counter }}</p>
       </v-container>
     </v-main>
   </sidebar>
 </template>
 
 <script>
-import Sidebar from "../../components/Sidebar";
-import axios from "axios";
+import all from "../../modules/product/models/all";
 
-export default {
-  components: {
-    Sidebar,
-  },
-  data() {
-    return {
-      products: null,
-      images: null,
-    };
-  },
-  methods: {
-    getImagePath: function(product) {
-      return "http://localhost:3000/" + product.name + "/" + product.file_name;
-    },
-  },
-  mounted() {
-    axios
-      .get("product/show")
-      .then((res) => (this.products = res.data))
-      .catch((error) => console.log(error));
-
-    //   axios
-    //     .get("product/image/show")
-    //     .then((res) => (this.images = res.data))
-    //     .catch((err) => console.log(err));
-  },
-};
+export default all;
 </script>
 
 <style></style>
