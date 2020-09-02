@@ -14,7 +14,7 @@
           </v-col>
           <v-col cols="2">
             <div class="my-2">
-              <a href="details">
+              <a href="/add">
                 <v-btn color="primary"
                   ><v-icon>mdi-plus</v-icon> New Product
                 </v-btn></a
@@ -32,7 +32,9 @@
               >
               </v-img>
               <v-divider></v-divider>
-              <v-card-title>{{ product.name }}</v-card-title>
+              <a :href="'/product/' + product.id + '/details'"
+                ><v-card-title>{{ product.name }}</v-card-title></a
+              >
               <v-card-subtitle class="pb-1">Bikes</v-card-subtitle>
 
               <v-card-title>
@@ -44,10 +46,6 @@
             </v-card>
           </v-col>
         </v-row>
-        <v-btn color="blue" type="button" @click="incrementCounter"
-          >increment</v-btn
-        >
-        <p>counter is : {{ counter }}</p>
       </v-container>
     </v-main>
   </sidebar>

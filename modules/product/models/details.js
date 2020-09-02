@@ -3,6 +3,7 @@ import { VueEditor } from "vue2-editor";
 import axios from "axios";
 
 export default {
+  name: "product_details",
   components: {
     VueEditor,
     Sidebar,

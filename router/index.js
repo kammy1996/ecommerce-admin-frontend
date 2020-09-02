@@ -6,14 +6,13 @@ Vue.use(Router);
 import Dashboard from "../pages/dashboard";
 import All from "../pages/product/all";
 import Details from "../pages/product/details";
-import ImageUpload from "../helpers/FileUpload";
 
 export default new Router({
   mode: "history",
   routes: [
     {
       path: "/",
-      name: "All",
+      name: "show_products",
       component: All,
     },
     {
@@ -22,14 +21,14 @@ export default new Router({
       component: Dashboard,
     },
     {
-      path: "/details",
-      name: "Details",
+      path: "/add",
+      name: "add_product",
       component: Details,
     },
     {
-      path: "/imageupload",
-      name: "ImageUpload",
-      component: ImageUpload,
+      path: "/product/:id/details",
+      name: "product_details",
+      component: Details,
     },
   ],
 });

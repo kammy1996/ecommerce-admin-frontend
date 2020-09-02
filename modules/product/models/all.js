@@ -1,34 +1,31 @@
 import Sidebar from "../../../components/Sidebar";
-import axios from "axios";
+// import axios from "axios";
 
 export default {
+  name: "show_products",
   components: {
     Sidebar,
   },
-  data() {
-    return {
-      products: null,
-    };
-  },
-  computed: {
-    counter() {
-      return this.$store.state.counter;
-    },
-  },
   methods: {
     getImagePath(product) {
-      return "http://localhost:3000/" + product.name + "/" + product.file_name;
+      return (
+        process.env.VUE_APP_HOST_URL +
+        "/" +
+        product.name +
+        "/" +
+        product.file_name
+      );
     },
-
-    incrementCounter() {
-      this.$store.commit("increment");
+    fetchProductAsPerId(product) {
+      return process.env.VUE_APP_HOST_URL + "/" + product.id;
     },
   },
-
-  mounted() {
-    axios
-      .get("product/show")
-      .then((res) => (this.products = res.data))
-      .catch((error) => console.log(error));
+  computed: {
+    addProducts() {
+      return this.$store.dispatch("getProducts");
+    },
+    products() {
+      return this.$store.getters.showProducts;
+    },
   },
 };
