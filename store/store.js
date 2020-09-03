@@ -6,7 +6,7 @@ Vue.use(Vuex);
 
 export const store = new Vuex.Store({
   state: {
-    products: null,
+    products: [],
   },
   mutations: {
     setProducts(state, products) {
@@ -24,6 +24,9 @@ export const store = new Vuex.Store({
   getters: {
     showProducts(state) {
       return state.products;
+    },
+    getProductById: (state) => (id) => {
+      return state.products.find((product) => product.id == id);
     },
   },
 });

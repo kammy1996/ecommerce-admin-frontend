@@ -6,6 +6,7 @@ Vue.use(Router);
 import Dashboard from "../pages/dashboard";
 import All from "../pages/product/all";
 import Details from "../pages/product/details";
+import Edit from "../pages/product/edit";
 
 export default new Router({
   mode: "history",
@@ -26,9 +27,10 @@ export default new Router({
       component: Details,
     },
     {
-      path: "/product/:id/details",
-      name: "product_details",
-      component: Details,
-    },
+      path:"/product/:id/details",
+      name:"edit_products",
+      component : Edit
+    }
+
   ],
 });

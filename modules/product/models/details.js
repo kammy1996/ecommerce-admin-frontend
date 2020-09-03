@@ -22,7 +22,6 @@ export default {
       uploadFiles: [],
       //Variables to show in frontend
       addedStocks: [],
-
       categories: null,
       showStocks: [],
       url: [],
@@ -32,6 +31,7 @@ export default {
       categoryName: "",
       color: "",
       quantity: null,
+ 
     };
   },
 

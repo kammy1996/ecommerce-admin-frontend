@@ -1,5 +1,7 @@
 import Sidebar from "../../../components/Sidebar";
-// import axios from "axios";
+// import { mapState } from "vuex";
+import { mapActions } from "vuex";
+import { mapGetters } from "vuex";
 
 export default {
   name: "show_products",
@@ -21,11 +23,10 @@ export default {
     },
   },
   computed: {
-    addProducts() {
-      return this.$store.dispatch("getProducts");
-    },
-    products() {
-      return this.$store.getters.showProducts;
-    },
+    ...mapGetters({
+      products: "showProducts",
+    }),
+    ...mapActions(["getProducts"]),
+    // ...mapActions(["getProducts"]),
   },
 };

@@ -57,4 +57,9 @@ import all from "../../modules/product/models/all";
 export default all;
 </script>
 
-<style></style>
+<style>
+a {
+  text-decoration: none;
+  color: black !important;
+}
+</style>
