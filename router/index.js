@@ -5,29 +5,30 @@ Vue.use(Router);
 //New Modules
 import Dashboard from "../pages/dashboard";
 import All from "../pages/product/all";
-import Details from "../pages/product/details";
+import Add from "../pages/product/add";
 import Edit from "../pages/product/edit";
 
 export default new Router({
   mode: "history",
   routes: [
     {
-      path: "/",
-      name: "show_products",
-      component: All,
-    },
-    {
       path: "/dashboard",
       name: "Dashboard",
       component: Dashboard,
     },
     {
-      path: "/add",
+      path: "/",
+      name: "show_products",
+      component: All,
+    },
+   
+    {
+      path: "/product/add",
       name: "add_product",
-      component: Details,
+      component: Add,
     },
     {
-      path:"/product/:id/details",
+      path:"/product/edit/:id",
       name:"edit_products",
       component : Edit
     }

@@ -1,12 +1,14 @@
 import Sidebar from "../../../components/Sidebar";
 import { VueEditor } from "vue2-editor";
 import axios from "axios";
+import FileUpload from "../../../components/FileUpload";
 
 export default {
   name: "product_details",
   components: {
     VueEditor,
     Sidebar,
+    FileUpload,
   },
   data() {
     return {
@@ -31,7 +33,6 @@ export default {
       categoryName: "",
       color: "",
       quantity: null,
- 
     };
   },
 

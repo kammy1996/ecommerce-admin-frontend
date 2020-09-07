@@ -14,7 +14,7 @@
           </v-col>
           <v-col cols="2">
             <div class="my-2">
-              <a href="/add">
+              <a href="/product/add">
                 <v-btn color="primary"
                   ><v-icon>mdi-plus</v-icon> New Product
                 </v-btn></a
@@ -32,10 +32,9 @@
               >
               </v-img>
               <v-divider></v-divider>
-              <a :href="'/product/' + product.id + '/details'"
+              <a :href="'/product/edit/' + product.id"
                 ><v-card-title>{{ product.name }}</v-card-title></a
               >
-              <v-card-subtitle class="pb-1">Bikes</v-card-subtitle>
 
               <v-card-title>
                 &#8377; {{ product.final_price }}
@@ -43,6 +42,13 @@
                   >{{ product.discount }} Off</v-chip
                 >
               </v-card-title>
+              <div v-for="(category, index) in categories" :key="index">
+                <div v-for="(val, key) in category" :key="key.id" class="pb-1">
+                  <p class="ml-5" v-if="val === product.category_id">
+                    {{ category.name }}
+                  </p>
+                </div>
+              </div>
             </v-card>
           </v-col>
         </v-row>

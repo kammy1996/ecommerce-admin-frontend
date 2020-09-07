@@ -25,8 +25,8 @@ export default {
   computed: {
     ...mapGetters({
       products: "showProducts",
+      categories: "showCategories",
     }),
-    ...mapActions(["getProducts"]),
-    // ...mapActions(["getProducts"]),
+    ...mapActions(["getProducts", "getCategories"]),
   },
 };

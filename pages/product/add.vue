@@ -145,33 +145,34 @@
                 enctype="multipart/form-data"
               >
                 <v-row>
-                  <v-col cols="4">
+                  <v-col cols="6">
                     <v-text-field
                       name="color"
                       v-model="color"
                       label="Color"
                     ></v-text-field>
                   </v-col>
-                  <v-col cols="2">
+                  <v-col cols="6">
                     <v-text-field
                       name="quantity"
                       v-model="quantity"
                       label="Quantity"
                     ></v-text-field>
                   </v-col>
-                  <v-col cols="6">
-                    <input
-                      type="file"
-                      ref="files"
-                      @change="selectedFile"
-                      multiple
-                    />
-                    <v-divider class="mt-5"></v-divider>
-                  </v-col>
-                  <v-btn color="primary" class="ml-5" type="submit"
-                    ><v-icon>mdi-check</v-icon>Save Color</v-btn
-                  >
                 </v-row>
+                <div>
+                  <file-upload></file-upload>
+                  <!-- <input
+                    type="file"
+                    ref="files"
+                    @change="selectedFile"
+                    multiple
+                  /> -->
+                </div>
+
+                <v-btn color="primary" class="ml-5" type="submit"
+                  ><v-icon>mdi-check</v-icon>Save Color</v-btn
+                >
               </v-form>
             </v-card>
             <v-spacer class="ma-10"></v-spacer>
@@ -217,9 +218,9 @@
 </template>
 
 <script>
-import details from "../../modules/product/models/details";
+import add from "../../modules/product/models/add";
 
-export default details;
+export default add;
 </script>
 
 <style>

@@ -16,15 +16,13 @@
             <div class="summary-background">
               <v-card-text>
                 Title:
-                {{ getProductById.name }}
+                {{ name }}
               </v-card-text>
               <v-card-text>
                 Short Description:
-                {{ getProductById.short_description }}</v-card-text
+                {{ shortDescription }}</v-card-text
               >
-              <v-card-text>
-                Specification: {{ getProductById.specification }}
-              </v-card-text>
+              <v-card-text> Specification: {{ specification }} </v-card-text>
 
               <v-card-title>Inventory</v-card-title>
               <v-simple-table>
@@ -45,14 +43,9 @@
               </v-simple-table>
               <v-spacer class="pt-5"></v-spacer>
               <v-card-title>Pricing</v-card-title>
-              <v-card-text
-                >Base Price (Incl.Taxes):
-                {{ getProductById.price }}</v-card-text
-              >
-              <v-card-text>Discount: {{ getProductById.discount }}</v-card-text>
-              <v-card-title
-                >Final Amount: {{ getProductById.final_price }}</v-card-title
-              >
+              <v-card-text>Base Price (Incl.Taxes): {{ price }}</v-card-text>
+              <v-card-text>Discount: {{ discount }}</v-card-text>
+              <v-card-title>Final Amount: {{ finalPrice }}</v-card-title>
             </div>
           </v-col>
 
@@ -62,18 +55,18 @@
               <v-text-field
                 name="name"
                 label="Product Name"
-                v-model="getProductById.name"
+                v-model="name"
                 required
               ></v-text-field>
               <v-textarea
                 name="shortDescription"
                 label="Short Description"
-                v-model="getProductById.short_description"
+                v-model="shortDescription"
                 rows="3"
                 required
               ></v-textarea>
               <vue-editor
-                v-model="getProductById.specification"
+                v-model="specification"
                 placeholder="Product Specification"
               />
               <v-spacer class="ma-5"></v-spacer>
@@ -82,7 +75,7 @@
                   <!-- <v-select
                     :items="categories"
                     item-text="name"
-                    item-value="getProductById.id"
+                    item-value="id"
                     v-model="catIndex"
                     label="Product Category"
                     multiple
@@ -140,13 +133,15 @@
             <v-spacer class="ma-10"></v-spacer>
             <v-card class="pa-10">
               <v-card-title>Inventory Management</v-card-title>
-              <!-- <v-select
-                v-if="showStocks.length > 0"
-                :items="showStocks"
+              <v-select
+                v-if="colors.length > 0"
+                :items="colors"
                 item-text="name"
                 item-value="id"
                 label="Current Stock"
-              ></v-select> -->
+                @change="editStock"
+                v-model="stockIndex"
+              ></v-select>
               <v-form
                 method="post"
                 @submit.prevent="addStock"
@@ -156,7 +151,7 @@
                   <v-col cols="4">
                     <v-text-field
                       name="color"
-                      v-model="getProductById.color"
+                      v-model="color"
                       label="Color"
                     ></v-text-field>
                   </v-col>
@@ -164,12 +159,44 @@
                     <v-text-field
                       name="quantity"
                       label="Quantity"
+                      v-model="quantity"
                     ></v-text-field>
                   </v-col>
                   <v-col cols="6">
                     <input type="file" ref="files" multiple />
                     <v-divider class="mt-5"></v-divider>
                   </v-col>
+
+                  <v-dialog v-model="imagesDialog" persistent max-width="600px">
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-btn color="primary" dark v-bind="attrs" v-on="on">
+                        <v-icon> mdi-upload </v-icon> View Images
+                      </v-btn>
+                    </template>
+                    <v-card>
+                      <v-card-title>
+                        <span class="headline">Your Images</span>
+                      </v-card-title>
+                      <v-row>
+                        <v-col
+                          cols="4 "
+                          v-for="(image, index) in existing_images"
+                          :key="index"
+                        >
+                          <v-img :src="getImagePath(image)"></v-img>
+                        </v-col>
+                      </v-row>
+
+                      <v-spacer></v-spacer>
+                      <v-btn
+                        color="blue darken-1"
+                        text
+                        @click="imagesDialog = false"
+                        >Close</v-btn
+                      >
+                    </v-card>
+                  </v-dialog>
+
                   <v-btn color="primary" class="ml-5"
                     ><v-icon>mdi-check</v-icon>Save Color</v-btn
                   >
@@ -184,7 +211,7 @@
                   <v-text-field
                     name="price"
                     label="₹ Base Price (Incl.Taxes)"
-                    v-model="getProductById.price"
+                    v-model="price"
                     required
                   ></v-text-field>
                 </v-col>
@@ -192,19 +219,18 @@
                   <v-text-field
                     name="discount"
                     label="₹ Discount Price"
-                    v-model="getProductById.discount"
+                    v-model="discount"
                     required
                   ></v-text-field>
                 </v-col>
               </v-row>
-
               <v-card-title
-                >Total Amount Payable : {{ getProductById.final_price }}
+                >Total Amount Payable : {{ finalPrice }}
               </v-card-title>
             </v-card>
             <v-spacer class="ma-10"></v-spacer>
             <v-btn
-              @click.prevent="submitData"
+              @click.prevent="updateData"
               type="submit"
               color="success"
               large
@@ -221,7 +247,7 @@
 // import { mapGetters } from "vuex";
 import Sidebar from "../../components/Sidebar";
 import { VueEditor } from "vue2-editor";
-import { mapActions } from "vuex";
+import axios from "axios";
 
 export default {
   name: "edit_product",
@@ -231,18 +257,84 @@ export default {
   },
   data() {
     return {
-      tmpRoute: null,
       dialog: false,
+      currentProduct: null,
+      name: "",
+      shortDescription: "",
+      specification: "",
+      price: null,
+      discount: null,
+      finalPrice: null,
+      color: null,
+      quantity: null,
+      existing_stock: [],
+      stockIndex: null,
+      imagesDialog: false,
+      existing_images: [],
+      colors: [],
     };
   },
-  computed: {
-    ...mapActions(["getProducts"]),
-    getProductById() {
-      return this.$store.getters.getProductById(this.tmpRoute);
-    },
+  created() {
+    this.getProduct();
   },
-  mounted() {
-    this.tmpRoute = this.$route.params.id;
+  methods: {
+    async getProduct() {
+      const res = await axios
+        .get(`/product/${this.$route.params.id}`)
+        .catch((err) => console.log(err));
+      this.currentProduct = res.data;
+
+      let product = this.currentProduct[0];
+      this.name = product.name;
+      this.shortDescription = product.short_description;
+      this.specification = product.specification;
+      this.price = product.price;
+      this.discount = product.discount;
+      this.finalPrice = product.final_price;
+
+      const fetchedStock = await axios
+        .get(`product/fetch/stock/${this.$route.params.id}`)
+        .catch((err) => console.log(err));
+      this.existing_stock = fetchedStock.data;
+
+      const fetchedImages = await axios
+        .get(`/product/fetch/image/${this.$route.params.id}`)
+        .catch((err) => console.log(err));
+      this.existing_images = fetchedImages.data;
+
+      this.existing_stock.forEach((color) => {
+        this.colors.push(color.color);
+      });
+    },
+    updateData() {
+      const updateForm = {
+        name: this.name,
+        shortDescription: this.shortDescription,
+        specification: this.specification,
+        price: parseInt(this.price),
+        discount: parseInt(this.discount),
+        finalPrice: parseInt(this.finalPrice),
+      };
+      axios
+        .put(`/product/update/${this.$route.params.id}`, updateForm)
+        .then((res) => console.log(res.data.message))
+        .catch((err) => console.log(err));
+    },
+    editStock() {
+      var x = this.colors.indexOf(this.stockIndex);
+      console.log(x);
+
+      this.color = this.stockIndex;
+
+      if (this.stockIndex == this.existing_stock[x].color) {
+        this.quantity = this.existing_stock[x].quantity;
+      }
+    },
+    getImagePath(image) {
+      return (
+        process.env.VUE_APP_HOST_URL + "/" + this.name + "/" + image.file_name
+      );
+    },
   },
 };
 </script>
