@@ -8,6 +8,13 @@ export default {
   components: {
     Sidebar,
   },
+  data() {
+    return {
+      page: 1,
+      perPage: 4,
+      products: [],
+    };
+  },
   methods: {
     getImagePath(product) {
       return (
@@ -21,12 +28,24 @@ export default {
     fetchProductAsPerId(product) {
       return process.env.VUE_APP_HOST_URL + "/" + product.id;
     },
+    async assignProducts() {
+      await this.$store.dispatch("getProducts");
+      this.products = await this.$store.getters.showProducts;
+    },
+  },
+  created() {
+    this.assignProducts();
   },
   computed: {
     ...mapGetters({
-      products: "showProducts",
       categories: "showCategories",
     }),
-    ...mapActions(["getProducts", "getCategories"]),
+    ...mapActions(["getCategories"]),
+    visibleProducts() {
+      return this.products.slice(
+        (this.page - 1) * this.perPage,
+        this.page * this.perPage
+      );
+    },
   },
 };

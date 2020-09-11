@@ -1,14 +1,12 @@
 import Sidebar from "../../../components/Sidebar";
 import { VueEditor } from "vue2-editor";
 import axios from "axios";
-import FileUpload from "../../../components/FileUpload";
 
 export default {
   name: "product_details",
   components: {
     VueEditor,
     Sidebar,
-    FileUpload,
   },
   data() {
     return {
@@ -33,6 +31,10 @@ export default {
       categoryName: "",
       color: "",
       quantity: null,
+      successDialog: false,
+      snackbar: false,
+      stockAddingAlert: "",
+      stockStatus: "",
     };
   },
 
@@ -51,6 +53,8 @@ export default {
         .post("product/add", submissionData)
         .then((res) => (this.message = res.data.message))
         .catch((error) => console.log(error));
+
+      this.successDialog = true;
     },
 
     calcFinalPrice() {
@@ -94,14 +98,21 @@ export default {
       //Showing the data in the inventory management for later edits
       if (this.color != "") {
         this.showStocks.push(this.color);
+        this.addedStocks.push({
+          color: this.color,
+          quantity: this.quantity,
+          noOfImages: this.url.length,
+        });
       }
 
       // Showing it in Summary
-      this.addedStocks.push({
-        color: this.color,
-        quantity: this.quantity,
-        noOfImages: this.url.length,
-      });
+
+      if ((this.color == "") & (this.quantity == null)) {
+        return (
+          (this.stockAddingAlert = `No Color & Quantity Added`),
+          (this.stockStatus = "error")
+        );
+      }
 
       //Sending the data
       this.stock.push([this.color, this.quantity]);
@@ -114,6 +125,9 @@ export default {
         .post("product/stock/add", stockData)
         .then((res) => console.log(res))
         .catch((err) => console.log(err));
+
+      this.stockAddingAlert = `Stock Added to the Product`;
+      this.stockStatus = "success";
 
       const formData = new FormData();
       this.uploadFiles.forEach((file) => {

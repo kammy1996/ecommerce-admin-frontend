@@ -24,13 +24,19 @@
         </v-row>
 
         <v-row>
-          <v-col cols="3" v-for="(product, index) in products" :key="index">
+          <v-col
+            cols="3"
+            v-for="(product, index) in visibleProducts"
+            :key="index"
+          >
             <v-card class="mx-auto per-product" max-width="400">
-              <v-img
-                class="white--text align-end product-image"
-                :src="getImagePath(product)"
-              >
-              </v-img>
+              <router-link :to="'/product/edit/' + product.id">
+                <v-img
+                  class="white--text align-end product-image"
+                  :src="getImagePath(product)"
+                >
+                </v-img>
+              </router-link>
               <v-divider></v-divider>
               <a :href="'/product/edit/' + product.id"
                 ><v-card-title>{{ product.name }}</v-card-title></a
@@ -52,6 +58,13 @@
             </v-card>
           </v-col>
         </v-row>
+
+        <v-pagination
+          class="mt-10"
+          style="float:right"
+          v-model="page"
+          :length="Math.ceil(products.length / perPage)"
+        ></v-pagination>
       </v-container>
     </v-main>
   </sidebar>

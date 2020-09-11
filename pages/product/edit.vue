@@ -112,12 +112,12 @@
                       </v-card-title>
                       <v-card-text>
                         <v-container>
-                          <!-- <v-text-field
+                          <v-text-field
                             label="New Category Name *"
                             required
                             prepend-icon="mdi-order-bool-descending"
-                            v-model="categoryName"
-                          ></v-text-field> -->
+                            v-model="category.categoryName"
+                          ></v-text-field>
                         </v-container>
                       </v-card-text>
                       <v-card-actions>
@@ -128,9 +128,9 @@
                           @click="dialog = false"
                           >Close</v-btn
                         >
-                        <!-- <v-btn color="blue darken-1" text @click="addCategory"
+                        <v-btn color="blue darken-1" text @click="addCategory"
                           >Save</v-btn
-                        > -->
+                        >
                       </v-card-actions>
                     </v-card>
                   </v-dialog>
@@ -175,44 +175,113 @@
                     ></v-text-field>
                   </v-col>
                   <v-col cols="6">
-                    <input type="file" ref="files" multiple />
-                    <v-divider class="mt-5"></v-divider>
+                    <input
+                      v-if="stock.stockIndex != null"
+                      type="file"
+                      ref="files"
+                      @change="selectedFile"
+                      multiple
+                    />
                   </v-col>
 
-                  <v-dialog v-model="imagesDialog" persistent max-width="600px">
-                    <template v-slot:activator="{ on, attrs }">
-                      <v-btn color="primary" dark v-bind="attrs" v-on="on">
-                        <v-icon> mdi-upload </v-icon> View Images
-                      </v-btn>
-                    </template>
-                    <v-card>
-                      <v-card-title>
-                        <span class="headline">Your Images</span>
-                      </v-card-title>
-                      <v-row>
-                        <v-col
-                          cols="4 "
-                          v-for="(image, index) in existing_images"
-                          :key="index"
-                        >
-                          <v-img :src="getImagePath(image)"></v-img>
-                          <v-btn @click="removeImage(index)">X</v-btn>
-                        </v-col>
-                      </v-row>
-
-                      <v-spacer></v-spacer>
+                  <v-row>
+                    <v-col cols="5">
                       <v-btn
-                        color="blue darken-1"
-                        text
-                        @click="imagesDialog = false"
-                        >Close</v-btn
+                        v-if="stock.stockIndex != null"
+                        color="primary"
+                        class="ml-5"
+                        @click="updateStock"
+                        ><v-icon>mdi-check</v-icon>Save Color</v-btn
+                      ></v-col
+                    >
+                    <v-col cols="5">
+                      <v-btn
+                        v-if="stock.stockIndex != null"
+                        color="primary"
+                        class="ml-5"
+                        @click="deleteStockDialog = true"
+                        ><v-icon>mdi-trash-can</v-icon>Delete Color</v-btn
                       >
-                    </v-card>
-                  </v-dialog>
 
-                  <v-btn color="primary" class="ml-5" @click="newStock"
-                    ><v-icon>mdi-check</v-icon>Save Color</v-btn
-                  >
+                      <v-dialog
+                        v-model="deleteStockDialog"
+                        persistent
+                        max-width="290"
+                      >
+                        <v-card>
+                          <v-card-title class="headline grey lighten-2">
+                            Please Note
+                          </v-card-title>
+
+                          <v-card-text>
+                            <br />
+                            Deleting a Stock color with result in Permanent loss
+                            of Images associate with it
+                          </v-card-text>
+
+                          <v-card-actions>
+                            <v-btn color="blue" text @click="deleteStock"
+                              >Continue</v-btn
+                            >
+                            <v-btn
+                              color="blue"
+                              text
+                              @click="deleteStockDialog = false"
+                              >Close</v-btn
+                            >
+                          </v-card-actions>
+                        </v-card>
+                      </v-dialog>
+                    </v-col>
+                  </v-row>
+                  <v-row>
+                    <v-col cols="5">
+                      <v-dialog
+                        v-model="imagesDialog"
+                        persistent
+                        max-width="600px"
+                      >
+                        <template v-slot:activator="{ on, attrs }">
+                          <v-btn color="primary" dark v-bind="attrs" v-on="on">
+                            <v-icon> mdi-upload </v-icon> View Images
+                          </v-btn>
+                        </template>
+                        <v-card>
+                          <v-card-title>
+                            <span class="headline">Your Images</span>
+                          </v-card-title>
+                          <v-row>
+                            <v-col
+                              cols="4 "
+                              v-for="(image, index) in existing_images"
+                              :key="index"
+                            >
+                              <v-img :src="getImagePath(image)"></v-img>
+
+                              <v-btn @click="removeImage(index)">X</v-btn>
+                            </v-col>
+                          </v-row>
+
+                          <v-spacer></v-spacer>
+                          <v-btn
+                            color="blue darken-1"
+                            text
+                            @click="imagesDialog = false"
+                            >Close</v-btn
+                          >
+                        </v-card>
+                      </v-dialog>
+                    </v-col>
+                    <v-col cols="5">
+                      <v-btn
+                        color="primary"
+                        class="ml-5"
+                        @click="addNewStock"
+                        v-if="stock.stockIndex === null"
+                        ><v-icon>mdi-plus</v-icon>Add Color</v-btn
+                      >
+                    </v-col>
+                  </v-row>
                 </v-row>
               </v-form>
             </v-card>
@@ -289,13 +358,18 @@ export default {
         stockIndex: null,
       },
       category: {
+        categoryName: "",
         catIndex: null,
         categories: null,
         selectedCat: null,
       },
+      files: [],
       existing_images: [],
+      uploadFiles: [],
+      removedImages: [],
       imagesDialog: false,
       dialog: false,
+      deleteStockDialog: false,
     };
   },
   created() {
@@ -340,7 +414,7 @@ export default {
         }
       });
     },
-    updateData() {
+    async updateData() {
       let stockSubmit = [];
       this.stock.existing_stock.forEach((stock) => {
         stockSubmit.push([stock.color, stock.quantity, stock.id]);
@@ -355,11 +429,60 @@ export default {
         stock: stockSubmit,
         categoryId: this.category.catIndex,
       };
-      axios
+
+      await axios
         .put(`/product/update/${this.$route.params.id}`, updateForm)
         .then((res) => console.log(res.data.message))
         .catch((err) => console.log(err));
+
+      //update existing images
+      if (this.removedImages.length > 0) {
+        let removedFiles = [];
+        this.removedImages.forEach((remove) => {
+          removedFiles.push(remove.file_name);
+        });
+
+        console.log(removedFiles);
+
+        let imagesData = {
+          removed: removedFiles,
+          pName: this.product.name,
+        };
+
+        axios
+          .put(`/product/update/existing/image`, imagesData)
+          .then((res) => console.log(res.data.message))
+          .catch((err) => console.log(err));
+      }
+
+      // If Upload new Images while editing
+      if (this.uploadFiles.length > 0) {
+        let fd = new FormData();
+        this.uploadFiles.forEach((file) => {
+          fd.append("files", file);
+        });
+
+        //Assigning the new images to the First Stock Always
+        fd.append("name", this.product.name);
+
+        let colorIndex = this.stock.colors.indexOf(this.stock.stockIndex);
+        console.log(colorIndex);
+        let newImageStockId;
+        if (this.stock.stockIndex == null) {
+          newImageStockId = this.stock.existing_stock[0].id;
+        } else if (
+          this.stock.stockIndex == this.stock.existing_stock[colorIndex].color
+        ) {
+          newImageStockId = this.stock.existing_stock[colorIndex].id;
+        }
+        axios
+          .post(`/product/update/image/new/${newImageStockId}`, fd)
+          .then((res) => console.log(res.data.message))
+          .catch((err) => console.log(err));
+      }
+      this.$router.go();
     },
+
     editStock() {
       this.stock.color = this.stock.stockIndex;
       var colorIndex = this.stock.colors.indexOf(this.stock.stockIndex);
@@ -383,14 +506,68 @@ export default {
       this.product.finalPrice = this.product.price - this.product.discount;
     },
     removeImage(index) {
+      this.removedImages.push(this.existing_images[index]);
       this.existing_images.splice(index, 1);
     },
-    newStock() {
+    updateStock() {
       var colorIndex = this.stock.colors.indexOf(this.stock.stockIndex);
       this.stock.colors.splice(colorIndex, 1, this.stock.color);
 
       this.stock.existing_stock[colorIndex].color = this.stock.color;
       this.stock.existing_stock[colorIndex].quantity = this.stock.quantity;
+    },
+    async addNewStock() {
+      if ((this.stock.color == null) & (this.stock.quantity == null)) {
+        return console.log(`no Color Entered`);
+      }
+      let newStock = {
+        color: this.stock.color,
+        quantity: this.stock.quantity,
+      };
+
+      axios
+        .post(`/product/update/add/stock/${this.$route.params.id}`, newStock)
+        .then((res) => console.log(res))
+        .catch((err) => console.log(err));
+
+      this.$router.go();
+    },
+    async deleteStock() {
+      let colorIndex = this.stock.colors.indexOf(this.stock.stockIndex);
+      let deletedStock;
+      if (this.stock.stockIndex == null) {
+        return console.log(`no stock Selected`);
+      } else {
+        deletedStock = this.stock.existing_stock[colorIndex].id;
+      }
+
+      let nameOfProduct = {
+        name: this.product.name,
+      };
+
+      axios
+        .put(`product/update/delete/stock/${deletedStock}`, nameOfProduct)
+        .then((res) => console.log(res))
+        .catch((err) => console.log(err));
+
+      this.deleteStockDialog = false;
+      this.$router.go();
+    },
+
+    selectedFile() {
+      const files = this.$refs.files.files;
+      this.uploadFiles = [...this.uploadFiles, ...files];
+    },
+    async addCategory() {
+      let self = this;
+      let categoryData = {
+        catName: self.category.categoryName,
+      };
+
+      axios
+        .post(`product/category/add`, categoryData)
+        .then((res) => console.log(res))
+        .catch((err) => console.log(err));
     },
   },
 };

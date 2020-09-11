@@ -77,7 +77,6 @@
                     item-value="id"
                     v-model="catIndex"
                     label="Product Category"
-                    multiple
                   ></v-select>
                 </v-col>
                 <v-col cols="2">
@@ -145,32 +144,34 @@
                 enctype="multipart/form-data"
               >
                 <v-row>
-                  <v-col cols="6">
+                  <v-col cols="3">
                     <v-text-field
                       name="color"
                       v-model="color"
                       label="Color"
                     ></v-text-field>
                   </v-col>
-                  <v-col cols="6">
+                  <v-col cols="3">
                     <v-text-field
                       name="quantity"
                       v-model="quantity"
                       label="Quantity"
                     ></v-text-field>
                   </v-col>
+                  <v-col cols="6">
+                    <input
+                      type="file"
+                      ref="files"
+                      @change="selectedFile"
+                      multiple
+                    />
+                  </v-col>
                 </v-row>
-                <div>
-                  <file-upload></file-upload>
-                  <!-- <input
-                    type="file"
-                    ref="files"
-                    @change="selectedFile"
-                    multiple
-                  /> -->
-                </div>
-
-                <v-btn color="primary" class="ml-5" type="submit"
+                <v-btn
+                  color="primary"
+                  class="ml-5"
+                  type="submit"
+                  @click="snackbar = true"
                   ><v-icon>mdi-check</v-icon>Save Color</v-btn
                 >
               </v-form>
@@ -210,6 +211,47 @@
               large
               ><v-icon>mdi-check</v-icon>&nbsp; SAVE</v-btn
             >
+            <v-dialog v-model="successDialog" persistent max-width="290">
+              <v-card>
+                <v-card-title class="headline green lighten-2">
+                  Success
+                </v-card-title>
+
+                <v-card-text>
+                  <br />
+                  Product Successfully added to the Inventory
+                </v-card-text>
+
+                <v-card-actions>
+                  <v-btn
+                    color="blue"
+                    text
+                    @click="
+                      successDialog = false;
+                      $router.push('/');
+                    "
+                    >Close</v-btn
+                  >
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
+            <v-col cols="5" style="position:fixed;bottom:10px;right:40px;">
+              <v-snackbar
+                v-model="snackbar"
+                :color="stockStatus"
+                absolute
+                right
+                rounded="pill"
+              >
+                {{ stockAddingAlert }}
+
+                <template>
+                  <v-btn color="black" text @click="snackbar = false">
+                    Close
+                  </v-btn>
+                </template>
+              </v-snackbar>
+            </v-col>
           </v-col>
         </v-row>
       </v-form>
