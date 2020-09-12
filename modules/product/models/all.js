@@ -1,6 +1,5 @@
 import Sidebar from "../../../components/Sidebar";
-// import { mapState } from "vuex";
-import { mapActions } from "vuex";
+
 import { mapGetters } from "vuex";
 
 export default {
@@ -28,19 +27,22 @@ export default {
     fetchProductAsPerId(product) {
       return process.env.VUE_APP_HOST_URL + "/" + product.id;
     },
-    async assignProducts() {
+    async getData() {
       await this.$store.dispatch("getProducts");
       this.products = await this.$store.getters.showProducts;
+
+      await this.$store.dispatch('getCategories');
+
     },
   },
   created() {
-    this.assignProducts();
+    this.getData();
   },
   computed: {
     ...mapGetters({
       categories: "showCategories",
     }),
-    ...mapActions(["getCategories"]),
+    
     visibleProducts() {
       return this.products.slice(
         (this.page - 1) * this.perPage,

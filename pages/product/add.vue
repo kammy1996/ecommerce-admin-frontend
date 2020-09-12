@@ -162,6 +162,7 @@
                     <input
                       type="file"
                       ref="files"
+                      id="imageUpload"
                       @change="selectedFile"
                       multiple
                     />

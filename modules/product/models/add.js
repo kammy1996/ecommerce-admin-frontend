@@ -61,15 +61,11 @@ export default {
       this.finalPrice = this.price - this.discount;
     },
     addCategory() {
-      let categoryData = {
-        catName: this.categoryName,
-      };
-      //adding the category
-      axios
-        .post("product/category/add", categoryData)
-        .then((res) => console.log(res))
-        .catch((err) => console.log(err));
-      //showing the cateogyr
+        let payload = {
+            catName: this.categoryName,
+          };
+          this.$store.dispatch("ADD_NEW_CATEGORY", payload);
+
     },
     selectedFile(e) {
       const files = this.$refs.files.files;
@@ -147,15 +143,13 @@ export default {
       this.quantity = "";
       this.uploadFiles = [];
     },
+    async getData() { 
+      await this.$store.dispatch("getCategories");
+      this.categories = await this.$store.getters.showCategories;
+    },
   },
 
-  mounted() {
-    axios
-      .get("product/category/show")
-      .then((res) => {
-        this.categories = res.data;
-        // console.log(res.data);
-      })
-      .catch((error) => console.log(error));
+  created() {
+    this.getData();
   },
 };
