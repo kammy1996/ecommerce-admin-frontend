@@ -120,7 +120,7 @@ export default {
           pName: this.product.name,
         };
 
-        axios
+       await axios
           .put(`/product/update/existing/image`, imagesData)
           .then((res) => console.log(res.data.message))
           .catch((err) => console.log(err));
@@ -146,11 +146,12 @@ export default {
         ) {
           newImageStockId = this.stock.existing_stock[colorIndex].id;
         }
-        axios
+       await axios
           .post(`/product/update/image/new/${newImageStockId}`, fd)
           .then((res) => console.log(res.data.message))
           .catch((err) => console.log(err));
       }
+        
       this.$router.go();
     },
 
