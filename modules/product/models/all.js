@@ -1,4 +1,5 @@
 import Sidebar from "../../../components/Sidebar";
+import axios from "axios"
 
 import { mapGetters } from "vuex";
 
@@ -9,9 +10,11 @@ export default {
   },
   data() {
     return {
-      page: 1,
+      currentPage: 1,
       perPage: 4,
-      products: [],
+      totalProducts: [],
+      visibleProducts :[],
+      overlay : false
     };
   },
   methods: {
@@ -29,7 +32,11 @@ export default {
     },
     async getData() {
       await this.$store.dispatch("getProducts");
-      this.products = await this.$store.getters.showProducts;
+      this.totalProducts = await this.$store.getters.showProducts;
+
+      const res = await axios.get(`/product/show/${this.perPage}/${this.currentPage}`)
+      .catch ((err) => console.log(err))
+      this.visibleProducts = res.data
 
       await this.$store.dispatch('getCategories');
 
@@ -42,12 +49,18 @@ export default {
     ...mapGetters({
       categories: "showCategories",
     }),
-    
-    visibleProducts() {
-      return this.products.slice(
-        (this.page - 1) * this.perPage,
-        this.page * this.perPage
-      );
-    },
+  
   },
+  watch : { 
+    async currentPage () { 
+      this.overlay = true
+      const res = await axios.get(`/product/show/${this.perPage}/${this.currentPage}`)
+      .catch((err) => console.log(err))
+      this.visibleProducts = res.data
+
+      setTimeout(() => {
+        this.overlay = false;
+      }, 1000);
+    }
+  }
 };

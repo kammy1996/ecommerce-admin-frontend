@@ -59,11 +59,14 @@
           </v-col>
         </v-row>
 
+        <v-overlay :value="overlay">
+          <v-progress-circular indeterminate size="64"></v-progress-circular>
+        </v-overlay>
         <v-pagination
           class="mt-10"
           style="float:right"
-          v-model="page"
-          :length="Math.ceil(products.length / perPage)"
+          v-model="currentPage"
+          :length="Math.ceil(totalProducts.length / perPage)"
         ></v-pagination>
       </v-container>
     </v-main>
